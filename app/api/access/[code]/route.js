@@ -4,10 +4,22 @@ import { query } from "@/lib/db";
 import { readFile } from "fs/promises";
 import path from "path";
 import { existsSync } from "fs";
+import { rateLimit } from "@/lib/ratelimit";
+import { headers } from "next/headers";
 
 export async function GET(request, { params }) {
 
     try {
+
+        //start ip-rl part
+        const headerList = await headers();
+        const ip = headerList.get("x-forwarded-for")?.split(",")[0]?.trim() || headerList.get("x-real-ip") || "127.0.0.1";
+        const { success } = await rateLimit(ip, "access", 5, 60);
+        if (!success) {
+            return NextResponse.json({ error: "Too many attempts. Try again later." }, { status: 429 });
+        }
+        //end ip-rl part
+
         const { code } = await params;
         if (!code) {
             return NextResponse.json({ error: "Code is required" }, { status: 400 });

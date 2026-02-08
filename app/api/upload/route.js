@@ -5,9 +5,21 @@ import { genCode } from "@/lib/utils";
 import { writeFile } from "fs/promises";
 import path from "path";
 import { v4 as uuid } from "uuid";
+import { rateLimit } from "@/lib/ratelimit";
+import { headers } from "next/headers";
 
 export async function POST(request) {
     try {
+
+        //start ip-rl part
+        const headerList = await headers();
+        const ip = headerList.get("x-forwarded-for")?.split(",")[0]?.trim() || headerList.get("x-real-ip") || "127.0.0.1";
+        const { success } = await rateLimit(ip, "upload", 5, 60);
+        if (!success) {
+            return NextResponse.json({ error: "Too many uploads. Try again later." }, { status: 429 });
+        }
+        //end ip-rl part
+
         const formData = await request.formData();
         const type = formData.get('type');
         if (!type) {

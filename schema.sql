@@ -11,3 +11,11 @@ CREATE TABLE IF NOT EXISTS uploads (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   expires_at TIMESTAMP NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS rate_limits (
+  ip VARCHAR(50) NOT NULL,
+  endpoint VARCHAR(50) NOT NULL,
+  count INT DEFAULT 1,
+  expires_at TIMESTAMP NOT NULL,
+  PRIMARY KEY (ip, endpoint)
+);
