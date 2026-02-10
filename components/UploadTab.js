@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { FileText, Check, Copy } from "lucide-react";
+import { FileText, Check, Copy, Loader2 } from "lucide-react";
 import { formatBytes } from "../lib/utils";
 
 export default function UploadTab({ onError }) {
@@ -13,8 +13,8 @@ export default function UploadTab({ onError }) {
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
       const selectedFile = e.target.files[0];
-      if (selectedFile.size > 20 * 1024 * 1024) {
-        onError("File size exceeds 20MB limit.");
+      if (selectedFile.size > 10 * 1024 * 1024) {
+        onError("File size exceeds 10MB limit.");
         return;
       }
       setFile(selectedFile);
@@ -175,7 +175,7 @@ export default function UploadTab({ onError }) {
                 Click to Select File
               </p>
               <p className="text-xs text-gray-400 dark:text-slate-500 mt-1">
-                Max 20MB
+                Max 10MB
               </p>
             </div>
           )}
@@ -200,7 +200,14 @@ export default function UploadTab({ onError }) {
         }
         className="w-full cursor-pointer py-3 bg-[#99CDEC] hover:bg-[#88BDDC] dark:bg-sky-600 dark:hover:bg-sky-500 disabled:opacity-50 disabled:cursor-not-allowed text-gray-900 dark:text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2 shadow-lg shadow-sky-500/20"
       >
-        {isUploading ? "Uploading..." : "Get Code"}
+        {isUploading ? (
+          <>
+            <Loader2 className="animate-spin" size={20} />
+            <span>Uploading...</span>
+          </>
+        ) : (
+          "Get Code"
+        )}
       </button>
     </div>
   );

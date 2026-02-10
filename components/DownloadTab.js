@@ -44,7 +44,7 @@ export default function DownloadTab({ onError }) {
             a.download = matches[1].replace(/['"]/g, "");
           }
         }
-        if (!a.download) a.download = `anondrop-${downloadCode}`;
+        if (!a.download) a.download = `wisp-${downloadCode}`;
 
         document.body.appendChild(a);
         a.click();
