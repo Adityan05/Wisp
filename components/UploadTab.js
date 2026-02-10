@@ -1,0 +1,191 @@
+import { useState, useRef } from "react";
+import { FileText, Check, Copy } from "lucide-react";
+import { formatBytes } from "../lib/utils";
+
+export default function UploadTab({ onError }) {
+  const [uploadType, setUploadType] = useState("file"); // 'file' | 'link'
+  const [file, setFile] = useState(null);
+  const [linkContent, setLinkContent] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadResult, setUploadResult] = useState(null);
+  const fileInputRef = useRef(null);
+
+  const handleFileChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      const selectedFile = e.target.files[0];
+      if (selectedFile.size > 20 * 1024 * 1024) {
+        onError("File size exceeds 20MB limit.");
+        return;
+      }
+      setFile(selectedFile);
+      onError("");
+    }
+  };
+
+  const handleUpload = async () => {
+    onError("");
+    setUploadResult(null);
+    setIsUploading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append("type", uploadType);
+
+      if (uploadType === "file") {
+        if (!file) throw new Error("Please select a file first.");
+        formData.append("file", file);
+      } else {
+        if (!linkContent) throw new Error("Please enter a link or text.");
+        formData.append("content", linkContent);
+      }
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.error || "Upload failed");
+
+      setUploadResult(data);
+      // Reset inputs
+      setFile(null);
+      setLinkContent("");
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    } catch (err) {
+      onError(err.message);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  if (uploadResult) {
+    return (
+      <div className="text-center py-4">
+        <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-full flex items-center justify-center mx-auto mb-4">
+          <Check size={32} />
+        </div>
+        <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">
+          Uploaded Successfully!
+        </h3>
+        <p className="text-gray-500 dark:text-gray-400 text-sm mb-6">
+          Use this code to retrieve your drop.
+        </p>
+
+        <div className="bg-gray-900 dark:bg-gray-950 text-white text-4xl font-mono font-bold tracking-widest py-6 rounded-xl mb-4 relative group border border-gray-800">
+          {uploadResult.code}
+          <button
+            onClick={() => navigator.clipboard.writeText(uploadResult.code)}
+            className="absolute right-4 top-1/2 -translate-y-1/2 p-2 text-gray-400 hover:text-white opacity-0 group-hover:opacity-100 transition-all"
+            title="Copy Code"
+          >
+            <Copy size={20} />
+          </button>
+        </div>
+
+        <p className="text-xs text-indigo-600 dark:text-indigo-400 font-medium">
+          Expires at {new Date(uploadResult.expiresAt).toLocaleTimeString()}
+        </p>
+
+        <button
+          onClick={() => {
+            setUploadResult(null);
+            setFile(null);
+            setLinkContent("");
+            onError("");
+          }}
+          className="mt-6 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 underline"
+        >
+          Upload Another
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-center mb-4">
+        <div className="bg-gray-100 dark:bg-gray-800 p-1 rounded-lg inline-flex">
+          <button
+            onClick={() => setUploadType("file")}
+            className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
+              uploadType === "file"
+                ? "bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm"
+                : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
+            }`}
+          >
+            File
+          </button>
+          <button
+            onClick={() => setUploadType("link")}
+            className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
+              uploadType === "link"
+                ? "bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm"
+                : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
+            }`}
+          >
+            Link/Text
+          </button>
+        </div>
+      </div>
+
+      {uploadType === "file" ? (
+        <div
+          className="border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-xl p-8 text-center hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors cursor-pointer"
+          onClick={() => fileInputRef.current?.click()}
+        >
+          <input
+            type="file"
+            ref={fileInputRef}
+            className="hidden"
+            onChange={handleFileChange}
+          />
+          <div className="w-12 h-12 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-full flex items-center justify-center mx-auto mb-3">
+            <FileText size={24} />
+          </div>
+          {file ? (
+            <div>
+              <p className="font-medium text-gray-900 dark:text-white">
+                {file.name}
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                {formatBytes(file.size)}
+              </p>
+            </div>
+          ) : (
+            <div>
+              <p className="font-medium text-gray-700 dark:text-gray-300">
+                Click to Select File
+              </p>
+              <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                Max 20MB
+              </p>
+            </div>
+          )}
+        </div>
+      ) : (
+        <div>
+          <textarea
+            value={linkContent}
+            onChange={(e) => setLinkContent(e.target.value)}
+            placeholder="Paste a link or simple text here..."
+            className="w-full p-4 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none min-h-[160px] text-sm placeholder-gray-400 dark:placeholder-gray-500"
+          />
+        </div>
+      )}
+
+      <button
+        onClick={handleUpload}
+        disabled={
+          isUploading ||
+          (uploadType === "file" && !file) ||
+          (uploadType === "link" && !linkContent)
+        }
+        className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2"
+      >
+        {isUploading ? "Uploading..." : "Get Code"}
+      </button>
+    </div>
+  );
+}
