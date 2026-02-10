@@ -1,3 +1,36 @@
 @import "tailwindcss";
 
 @custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  /* Wisp Brand Colors */
+  --wisp-50: #e5f3f6;
+  --wisp-100: #d0e9f3;
+  --wisp-200: #add7ed;
+  --wisp-300: #99cdec;
+
+  /* Generated Darker Shades for Text/Interaction */
+  --wisp-400: #7cb1d6;
+  --wisp-500: #5f95c0;
+  --wisp-600: #4279aa;
+}
+
+@keyframes gradient-move {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.bg-wisp-gradient {
+  background: radial-gradient(circle at top left, #e0f2f7, #ffffff);
+}
+
+.dark .bg-wisp-gradient {
+  background: radial-gradient(circle at top left, #020617, #000000);
+}
