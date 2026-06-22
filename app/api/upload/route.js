@@ -75,16 +75,14 @@ export async function POST(request) {
           { status: 500 },
         );
       }
+      
       const fileName = `${id}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
-      const fileBuffer = await file.arrayBuffer();
-      //const filePath = path.join(process.cwd(), "public", "uploads", fileName);
-
-      //await writeFile(filePath, buffer);
+      
       // Upload using Service Role
       const { error: uploadError } = await supabaseAdmin.storage
         .from("wisp-files") // Ensure this bucket exists and is PRIVATE
-        .upload(fileName, fileBuffer, {
-          contentType: file.type,
+        .upload(fileName, file, {
+          contentType: file.type || "application/octet-stream",
           upsert: false,
         });
 

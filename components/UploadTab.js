@@ -44,9 +44,15 @@ export default function UploadTab({ onError }) {
         body: formData,
       });
 
-      const data = await res.json();
+      const contentType = res.headers.get("content-type");
+      let data;
+      if (contentType && contentType.includes("application/json")) {
+        data = await res.json();
+      } else {
+        throw new Error("Server returned an unexpected response.");
+      }
 
-      if (!res.ok) throw new Error(data.error || "Upload failed");
+      if (!res.ok) throw new Error(data?.error || "Upload failed");
 
       setUploadResult(data);
       // Reset inputs

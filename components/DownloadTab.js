@@ -41,7 +41,7 @@ export default function DownloadTab({ onError }) {
           const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
           const matches = filenameRegex.exec(disposition);
           if (matches != null && matches[1]) {
-            a.download = matches[1].replace(/['"]/g, "");
+            a.download = decodeURIComponent(matches[1].replace(/['"]/g, ""));
           }
         }
         if (!a.download) a.download = `wisp-${downloadCode}`;

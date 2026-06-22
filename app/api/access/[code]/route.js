@@ -57,7 +57,7 @@ export async function GET(request, { params }) {
       const { data, error } = await supabaseAdmin.storage
         .from("wisp-files")
         .createSignedUrl(upload.file_path, 60, {
-          download: upload.original_name, // Force Content-Disposition header
+          download: encodeURIComponent(upload.original_name), // Force Content-Disposition header
         });
 
       if (error || !data?.signedUrl) {
