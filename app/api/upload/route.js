@@ -75,9 +75,9 @@ export async function POST(request) {
           { status: 500 },
         );
       }
-      
+
       const fileName = `${id}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
-      
+
       // Upload using Service Role
       const { error: uploadError } = await supabaseAdmin.storage
         .from("wisp-files") // Ensure this bucket exists and is PRIVATE

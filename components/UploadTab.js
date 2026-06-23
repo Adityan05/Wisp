@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { FileText, Check, Copy, Loader2 } from "lucide-react";
 import { formatBytes } from "../lib/utils";
+import { QRCodeSVG } from "qrcode.react";
 
 export default function UploadTab({ onError }) {
   const [uploadType, setUploadType] = useState("file"); // 'file' | 'link'
@@ -67,6 +68,7 @@ export default function UploadTab({ onError }) {
   };
 
   if (uploadResult) {
+    const dlUrl = `${window.location.origin}/?code=${uploadResult.code}`;
     return (
       <div className="text-center py-4">
         <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -104,6 +106,20 @@ export default function UploadTab({ onError }) {
           >
             <Copy size={20} />
           </button>
+        </div>
+        {/* qr code section */}
+        <div className="flex flex-col items-center justify-center my-6 p-4 bg-white dark:bg-white/5 rounded-xl border border-gray-100 dark:border-white/10 shadow-sm">
+          <QRCodeSVG
+            value={dlUrl}
+            size={160}
+            bgColor={"transparent"}
+            fgColor={"currentColor"} // Uses the text color of the parent, or use a specific hex like "#4279AA"
+            level={"H"} // High error correction, good if you want to add a logo
+            className="text-gray-800 dark:text-slate-200"
+          />
+          <p className="mt-3 text-xs text-gray-500 dark:text-slate-400 font-medium">
+            Scan to access anywhere
+          </p>
         </div>
 
         <p className="text-xs text-[#4279AA] dark:text-sky-400 font-medium">
