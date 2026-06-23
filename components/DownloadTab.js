@@ -1,11 +1,18 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Copy } from "lucide-react";
 
-export default function DownloadTab({ onError }) {
-  const [downloadCode, setDownloadCode] = useState("");
+export default function DownloadTab({ onError, initialCode = "" }) {
+  const [downloadCode, setDownloadCode] = useState(initialCode);
   const [isRetrieving, setIsRetrieving] = useState(false);
   const [retrievedContent, setRetrievedContent] = useState(null);
-
+  useEffect(() => {
+    if (initialCode) setDownloadCode(initialCode);
+  }, [initialCode]);
+  useEffect(() => {
+    if (initialCode && initialCode.length == 4) {
+      handleDownload();
+    }
+  }, [initialCode]);
   const handleDownload = async () => {
     onError("");
     setRetrievedContent(null);

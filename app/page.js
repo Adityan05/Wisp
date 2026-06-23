@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Upload, Download, X } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -11,6 +11,16 @@ import DownloadTab from "@/components/DownloadTab";
 export default function Home() {
   const [activeTab, setActiveTab] = useState("upload"); // 'upload' | 'download'
   const [error, setError] = useState("");
+  const [urlCode, setUrlCode] = useState("");
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get("code");
+    if (code) {
+      setActiveTab("download");
+      setUrlCode(code.toUpperCase());
+      window.history.replaceState(null, "", window.location.pathname);
+    }
+  }, []);
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
@@ -60,7 +70,7 @@ export default function Home() {
             {activeTab === "upload" ? (
               <UploadTab onError={setError} />
             ) : (
-              <DownloadTab onError={setError} />
+              <DownloadTab onError={setError} initialCode={urlCode} />
             )}
           </div>
         </div>
