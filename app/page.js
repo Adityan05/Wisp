@@ -7,20 +7,34 @@ import Footer from "@/components/Footer";
 import Hero from "@/components/Hero";
 import UploadTab from "@/components/UploadTab";
 import DownloadTab from "@/components/DownloadTab";
+import { useRouter } from "next/router";
+import { usePathname } from "next/navigation";
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState("upload"); // 'upload' | 'download'
   const [error, setError] = useState("");
   const [urlCode, setUrlCode] = useState("");
+  const router = useRouter();
+  const pathname = usePathname();
+  // useEffect(() => {
+  //   const params = new URLSearchParams(window.location.search);
+  //   const code = params.get("code");
+  //   if (code) {
+  //     setActiveTab("download");
+  //     setUrlCode(code.toUpperCase());
+  //     window.history.replaceState(null, "", window.location.pathname);
+  //   }
+  // }, []);
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const code = params.get("code");
-    if (code) {
-      setActiveTab("download");
-      setUrlCode(code.toUpperCase());
-      window.history.replaceState(null, "", window.location.pathname);
-    }
-  }, []);
+    if (!code) return;
+
+    setActiveTab("download");
+    setUrlCode(code);
+
+    router.replace(pathname, { scroll: false });
+  }, [router, pathname]);
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);

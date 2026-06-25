@@ -13,6 +13,7 @@ export default function DownloadTab({ onError, initialCode = "" }) {
       handleDownload();
     }
   }, [initialCode]);
+
   const handleDownload = async () => {
     onError("");
     setRetrievedContent(null);

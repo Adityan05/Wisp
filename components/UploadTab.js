@@ -113,7 +113,17 @@ export default function UploadTab({ onError }) {
             value={dlUrl}
             size={160}
             bgColor={"transparent"}
-            fgColor={"currentColor"} // Uses the text color of the parent, or use a specific hex like "#4279AA"
+            fgColor={"currentColor"}
+            imageSettings={{
+              src: "/wisp-logo.png",
+              x: undefined,
+              y: undefined,
+              height: 24,
+              width: 24,
+              opacity: 1,
+              excavate: true,
+            }}
+            // Uses the text color of the parent, or use a specific hex like "#4279AA"
             level={"H"} // High error correction, good if you want to add a logo
             className="text-gray-800 dark:text-slate-200"
           />
