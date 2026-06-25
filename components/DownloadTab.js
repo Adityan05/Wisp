@@ -93,7 +93,8 @@ export default function DownloadTab({
       </div>
 
       <button
-        onClick={handleDownload}
+        // onClick={handleDownload}
+        onClick={() => handleDownload()}
         disabled={isRetrieving || downloadCode.length !== 4}
         className="cursor-pointer w-full py-3 bg-[#99CDEC] hover:bg-[#88BDDC] dark:bg-sky-600 dark:hover:bg-sky-500 disabled:opacity-50 disabled:cursor-not-allowed text-gray-900 dark:text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2 shadow-lg shadow-sky-500/20"
       >
