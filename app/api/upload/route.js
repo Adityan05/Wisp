@@ -5,7 +5,7 @@ import { v4 as uuid } from "uuid";
 import { rateLimit } from "@/lib/ratelimit";
 import { headers } from "next/headers";
 import { supabaseAdmin } from "@/lib/supabase";
-
+import redis from "@/lib/redis";
 export async function POST(request) {
   try {
     //start ip-rl part
@@ -93,7 +93,7 @@ export async function POST(request) {
           { status: 500 },
         );
       }
-
+      await redis.incrby("wisp:total_bytes", file.size); // file.size is in bytes
       //Save to PostgreSQL db
       await query(
         "INSERT INTO uploads (id, code, type, file_path, original_name, mime_type, size_bytes, expires_at)   VALUES ($1, $2, $3, $4, $5, $6, $7, $8)",
@@ -114,6 +114,9 @@ export async function POST(request) {
     } else {
       return NextResponse.json({ error: "Invalid type" }, { status: 400 });
     }
+    // after successful upload, before return:
+    await redis.incr("wisp:total_uploads");
+
     return NextResponse.json({ success: true, code, expiresAt });
   } catch (error) {
     console.error("Upload error:", error);

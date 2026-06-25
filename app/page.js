@@ -9,6 +9,7 @@ import UploadTab from "@/components/UploadTab";
 import DownloadTab from "@/components/DownloadTab";
 import { useRouter } from "next/navigation";
 import { usePathname } from "next/navigation";
+import Stats from "@/components/Stats";
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState("upload"); // 'upload' | 'download'
@@ -84,12 +85,16 @@ export default function Home() {
             {activeTab === "upload" ? (
               <UploadTab onError={setError} />
             ) : (
-              <DownloadTab onError={setError} initialCode={urlCode} />
+              <DownloadTab
+                onError={setError}
+                initialCode={urlCode}
+                onConsumed={() => setUrlCode("")}
+              />
             )}
           </div>
         </div>
       </main>
-
+      <Stats />
       <Footer />
     </div>
   );

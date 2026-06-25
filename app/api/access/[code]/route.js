@@ -3,6 +3,7 @@ import { query } from "@/lib/db";
 import { rateLimit } from "@/lib/ratelimit";
 import { supabaseAdmin } from "@/lib/supabase";
 import { headers } from "next/headers";
+import redis from "@/lib/redis";
 
 export async function GET(request, { params }) {
   try {
@@ -70,8 +71,10 @@ export async function GET(request, { params }) {
 
       // Redirect the client to the Supabase temporary URL
       // The frontend 'fetch' will follow this redirect and download the file blob
+      await redis.incr("wisp:total_downloads");
       return NextResponse.redirect(data.signedUrl);
     } else {
+      await redis.incr("wisp:total_downloads");
       return NextResponse.json({
         type: upload.type,
         content: upload.text_data,
