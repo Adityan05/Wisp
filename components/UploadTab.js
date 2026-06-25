@@ -10,6 +10,7 @@ export default function UploadTab({ onError }) {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadResult, setUploadResult] = useState(null);
   const fileInputRef = useRef(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
@@ -180,8 +181,37 @@ export default function UploadTab({ onError }) {
 
       {uploadType === "file" ? (
         <div
-          className="border-2 border-dashed border-gray-300 dark:border-white/10 rounded-xl p-8 text-center hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer"
+          className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors cursor-pointer
+    ${
+      isDragging
+        ? "border-[#99CDEC] dark:border-sky-500 bg-[#E5F3F6]/50 dark:bg-sky-500/10"
+        : "border-gray-300 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/5"
+    }`}
           onClick={() => fileInputRef.current?.click()}
+          onDragOver={(e) => {
+            e.preventDefault();
+            setIsDragging(true);
+          }}
+          onDragEnter={(e) => {
+            e.preventDefault();
+            setIsDragging(true);
+          }}
+          onDragLeave={(e) => {
+            e.preventDefault();
+            setIsDragging(false);
+          }}
+          onDrop={(e) => {
+            e.preventDefault();
+            setIsDragging(false);
+            const dropped = e.dataTransfer.files[0];
+            if (!dropped) return;
+            if (dropped.size > 10 * 1024 * 1024) {
+              onError("File size exceeds 10MB limit.");
+              return;
+            }
+            setFile(dropped);
+            onError("");
+          }}
         >
           <input
             type="file"
@@ -204,7 +234,7 @@ export default function UploadTab({ onError }) {
           ) : (
             <div>
               <p className="font-medium text-gray-700 dark:text-slate-300">
-                Click to Select File
+                {isDragging ? "Drop it!" : "Click or drag a file here"}
               </p>
               <p className="text-xs text-gray-400 dark:text-slate-500 mt-1">
                 Max 10MB
@@ -213,6 +243,39 @@ export default function UploadTab({ onError }) {
           )}
         </div>
       ) : (
+        // <div
+        //   className="border-2 border-dashed border-gray-300 dark:border-white/10 rounded-xl p-8 text-center hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer"
+        //   onClick={() => fileInputRef.current?.click()}
+        // >
+        //   <input
+        //     type="file"
+        //     ref={fileInputRef}
+        //     className="hidden"
+        //     onChange={handleFileChange}
+        //   />
+        //   <div className="w-12 h-12 bg-[#E5F3F6] dark:bg-sky-500/10 text-[#4279AA] dark:text-sky-300 rounded-full flex items-center justify-center mx-auto mb-3">
+        //     <FileText size={24} />
+        //   </div>
+        //   {file ? (
+        //     <div>
+        //       <p className="font-medium text-gray-900 dark:text-white">
+        //         {file.name}
+        //       </p>
+        //       <p className="text-sm text-gray-500 dark:text-slate-400 mt-1">
+        //         {formatBytes(file.size)}
+        //       </p>
+        //     </div>
+        //   ) : (
+        //     <div>
+        //       <p className="font-medium text-gray-700 dark:text-slate-300">
+        //         Click to Select File
+        //       </p>
+        //       <p className="text-xs text-gray-400 dark:text-slate-500 mt-1">
+        //         Max 10MB
+        //       </p>
+        //     </div>
+        //   )}
+        // </div>
         <div>
           <textarea
             value={linkContent}
