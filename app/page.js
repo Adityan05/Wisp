@@ -7,7 +7,7 @@ import Footer from "@/components/Footer";
 import Hero from "@/components/Hero";
 import UploadTab from "@/components/UploadTab";
 import DownloadTab from "@/components/DownloadTab";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { usePathname } from "next/navigation";
 
 export default function Home() {
